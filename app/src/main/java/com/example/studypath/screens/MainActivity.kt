@@ -20,6 +20,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.example.studypath.database.DatabaseProvider
 import com.example.studypath.model.Task
 import com.example.studypath.ui.theme.StudyPathTheme
@@ -38,9 +40,22 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContent {
+            StudyPathTheme {
+                Surface (color = MaterialTheme.colorScheme.background) {
+                    val navController = rememberNavController()
+                    NavGraph(navController)
+                }
+            }
+        }
 
-        val taskDao = DatabaseProvider.getDatabase(this@MainActivity).taskDao()
-        val viewModel = TaskViewModel(taskDao) //Initialize ViewModel
+
+
+
+
+
+//       val taskDao = DatabaseProvider.getDatabase(this@MainActivity).taskDao()
+//        val viewModel = TaskViewModel(taskDao) //Initialize ViewModel
 
 //        lifecycleScope.launch(Dispatchers.IO) {
 //            taskDao.insertTask( //dummy data
@@ -52,61 +67,16 @@ class MainActivity : ComponentActivity() {
 //                )
 //            )
 //        }
-        enableEdgeToEdge()
-        setContent {
-            StudyPathTheme {
-                TaskScreen(
-                    viewModel = viewModel,
-                    onAddTaskClick = { /* Handle Add Task click here */ }
-                )
-            }
-        }
+//        enableEdgeToEdge()
+//        setContent {
+//            StudyPathTheme {
+//                TaskScreen(
+//                    viewModel = viewModel,
+//                    onAddTaskClick = { /* Handle Add Task click here */ }
+//                )
+//            }
+//        }
     }
-
-}
-
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit) {
-    val tasks by viewModel.tasks.observeAsState(emptyList())
-
-    val dummyTasks = listOf(
-        Task(
-            name = "Finish App",
-            description = "Complete the app",
-            dueDate = "2024-12-10",
-            priority = 1
-        ),
-        Task(
-            name = "Study Kotlin",
-            description = "Brush up on Kotlin basics",
-            dueDate = "2024-12-12",
-            priority = 2
-        )
-    )
-
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onAddTaskClick() }) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add Task"
-                )
-            }
-        }
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            items(tasks) { task ->
-                TaskItem(task)
-            }
-        }
-    }
-
 
 }
 
@@ -119,21 +89,7 @@ fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit) {
 //    }
 //}
 
-@Composable
-fun TaskItem(task: Task) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(task.name, style = MaterialTheme.typography.headlineMedium)
-            Text("Due: ${task.dueDate}", style = MaterialTheme.typography.bodySmall)
-            Text("Priority: ${task.priority}", style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
+
 
 //@Composable
 //fun Greeting(name: String, modifier: Modifier = Modifier) {

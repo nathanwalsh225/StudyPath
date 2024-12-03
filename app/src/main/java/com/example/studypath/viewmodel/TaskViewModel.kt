@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 
 class TaskViewModel(private val taskDao: TaskDao) : ViewModel() {
 
-    //private val _tasks = MutableLiveData<List<Task>>()
     val tasks: LiveData<List<Task>> = taskDao.getAllTasks()
 
     fun addTask(task: Task) {
@@ -19,12 +18,6 @@ class TaskViewModel(private val taskDao: TaskDao) : ViewModel() {
             taskDao.insertTask(task)
         }
     }
-
-//    fun loadTasks() {
-//        viewModelScope.launch {
-//            tasks.postValue(taskDao.getAllTasks())
-//        }
-//    }
 
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
