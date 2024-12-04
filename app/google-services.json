@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "825513447383",
+    "project_id": "studypath-73936",
+    "storage_bucket": "studypath-73936.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825513447383:android:e10b9f09d729c42a80c592",
+        "android_client_info": {
+          "package_name": "com.example.studypath"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5lFmcjEDkgxjskesiDl6cvv70eRA48wU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
