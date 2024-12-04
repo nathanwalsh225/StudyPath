@@ -55,19 +55,29 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("task") {
+            val user = FirebaseAuth.getInstance().currentUser //If user is not logged in dont allow access TODO is this essential?
+            if (user == null) {
+                navController.navigate("login") {
+                    popUpTo("task") { inclusive = true }
+                }
+            }
+
             val taskDao = DatabaseProvider.getDatabase(context = LocalContext.current).taskDao()
             val viewModel = TaskViewModel(taskDao)
-            val user = FirebaseAuth.getInstance().currentUser
-
-            Log.d("userCheck", "USER: ${user?.email}")
+            val userEmail = user?.email ?: "No Email"
+            val userName = user?.displayName ?: "Unknown User"
 
             TaskScreen(
                 viewModel = viewModel,
                 onAddTaskClick = { },
-                userName = user.displayName, //TODO fix null issue
-                userEmail = user.email,
+                userName = userName,
+                userEmail = userEmail,
                 onLogoutClick = {
+                    Log.d("Logout", "Logging out user...")
+                    FirebaseAuth.getInstance().signOut()
+                    Log.d("Logout", "User has been signed out")
                     navController.navigate("login") {
+                        Log.d("Navigation", "Navigating to login screen")
                         popUpTo("task") { inclusive = true }
                     }
                 }

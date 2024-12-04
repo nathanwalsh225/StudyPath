@@ -43,7 +43,6 @@ fun MainScreenWithSidebar(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope() //Using a coroutine Scope for side menu
-    Log.d("newUserCheck", "USER: $userEmail + $userName")
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -123,7 +122,6 @@ fun SidebarContent(
 
         Button (
             onClick = {
-                onCloseDrawer()
                 onLogoutClick()
             },
             modifier = Modifier.fillMaxWidth(),

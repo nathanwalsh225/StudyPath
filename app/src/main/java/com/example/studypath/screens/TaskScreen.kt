@@ -36,10 +36,12 @@ fun TaskScreen(
 ) {
     val tasks by viewModel.tasks.observeAsState(emptyList())
 
+    Log.d("TaskScreen", "Tasks: $userName")
+
     MainScreenWithSidebar(
         userEmail = userEmail,
         userName = userName,
-        onLogoutClick = { onLogoutClick }
+        onLogoutClick = { onLogoutClick() }
     ) {
         Scaffold(
             floatingActionButton = {
