@@ -1,5 +1,7 @@
 package com.example.studypath.screens
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,34 +22,46 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.studypath.model.Task
+import com.example.studypath.navigation.MainScreenWithSidebar
 import com.example.studypath.viewmodel.TaskViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit) {
+fun TaskScreen(
+    viewModel: TaskViewModel,
+    onAddTaskClick: () -> Unit,
+    userName: String,
+    userEmail: String,
+    onLogoutClick: () -> Unit
+) {
     val tasks by viewModel.tasks.observeAsState(emptyList())
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onAddTaskClick() }) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add Task"
-                )
-            }
-        }
+    MainScreenWithSidebar(
+        userEmail = userEmail,
+        userName = userName,
+        onLogoutClick = { onLogoutClick }
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
+        Scaffold(
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { onAddTaskClick() }) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Add Task"
+                    )
+                }
+            }
         ) {
-            items(tasks) { task ->
-                TaskItem(task)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                items(tasks) { task ->
+                    TaskItem(task)
+                }
             }
         }
     }
-
-
 }
 
 @Composable

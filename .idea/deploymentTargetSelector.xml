@@ -4,6 +4,17 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2024-12-04T14:40:19.317245400Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\K00269862\.android\avd\Pixel_8_Pro_API_35.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="previewLoginScreen">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>
