@@ -88,11 +88,14 @@ fun LoginScreen(
         // https://developer.android.com/reference/kotlin/androidx/compose/material3/OutlinedTextFieldDefaults
         OutlinedTextField(
             value = email,
+
             onValueChange = { email = it },
             label = {
                 Text("Email", color = MaterialTheme.colorScheme.primary)
             },
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
                 focusedBorderColor = MaterialTheme.colorScheme.secondary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.primary
             ),
@@ -110,6 +113,8 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
                 focusedBorderColor = MaterialTheme.colorScheme.secondary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.primary,
             ),
@@ -133,7 +138,9 @@ fun LoginScreen(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(vertical = 16.dp),
             ) {
             Button(
                 onClick = {

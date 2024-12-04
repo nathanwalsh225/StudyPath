@@ -73,6 +73,10 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+            ),
         )
 
         OutlinedTextField(
@@ -81,7 +85,11 @@ fun RegisterScreen(
             label = { Text("Last Name", color = MaterialTheme.colorScheme.secondary) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+            ),
         )
 
         OutlinedTextField(
@@ -90,7 +98,11 @@ fun RegisterScreen(
             label = { Text("Email", color = MaterialTheme.colorScheme.secondary) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+            ),
         )
 
         OutlinedTextField(
@@ -101,8 +113,8 @@ fun RegisterScreen(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
             ),
             visualTransformation = PasswordVisualTransformation()
         )
@@ -150,7 +162,7 @@ fun RegisterScreen(
             ) {
                 //code for register button authentication, just some Regex I found online
                 //https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-regex/
-                Button( //TODO test auth
+                Button(
                     onClick = {
                         if (email.isBlank() || password.isBlank() || firstName.isBlank() || lastName.isBlank()) {
                             errorMessage = "Please fill out all fields"
