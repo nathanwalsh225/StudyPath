@@ -22,7 +22,15 @@ fun NavGraph(navController: NavHostController) {
     ) {
         val authViewModel = AuthViewModel()
 
+
         composable("login") {
+            //clear the db just incase
+//            val database = DatabaseProvider.getDatabase(LocalContext.current)
+//            database.clearAllTables()
+
+//            LocalContext.current.deleteDatabase("study-path-db")
+
+
             LoginScreen(
                 authViewModel = authViewModel,
                 onLoginSuccess = {
@@ -33,6 +41,7 @@ fun NavGraph(navController: NavHostController) {
                     }
                 },
                 onRegisterClick = {
+
                     navController.navigate("register")
                 }
             )
@@ -73,14 +82,12 @@ fun NavGraph(navController: NavHostController) {
                 userName = userName,
                 userEmail = userEmail,
                 onLogoutClick = {
-                    Log.d("Logout", "Logging out user...")
                     FirebaseAuth.getInstance().signOut()
-                    Log.d("Logout", "User has been signed out")
                     navController.navigate("login") {
-                        Log.d("Navigation", "Navigating to login screen")
                         popUpTo("task") { inclusive = true }
                     }
-                }
+                },
+                onEditTaskClick = { }
             )
         }
     }
