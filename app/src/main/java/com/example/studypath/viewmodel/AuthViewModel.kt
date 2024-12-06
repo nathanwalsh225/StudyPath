@@ -30,8 +30,10 @@ class AuthViewModel(private val userDao: UserDao) : ViewModel() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    Log.d("TaskScreen", "Registering user IN")
                     //Getting the users name just to save it here so I can use it in the app
                     val user = auth.currentUser
+                    Log.d("TaskScreen", "Current User $user")
                     val profileUpdates = UserProfileChangeRequest.Builder()
                         .setDisplayName("$firstName $lastName")
                         .build()
@@ -42,6 +44,8 @@ class AuthViewModel(private val userDao: UserDao) : ViewModel() {
                                 onRegisterSuccess()
                                 viewModelScope.launch(Dispatchers.IO) {
                                     val id = userDao.insertUser(User(0, email, password, firstName, lastName)) //Inserting user to DB
+                                    Log.d("TaskScreen", "UserId $id ")
+
                                     if (id > 0) {
                                         println("User inserted successfully")
                                     } else {

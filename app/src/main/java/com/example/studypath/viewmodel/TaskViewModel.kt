@@ -12,6 +12,8 @@ import kotlinx.coroutines.launch
 class TaskViewModel(private val taskDao: TaskDao, private val subtaskDao: SubtaskDao) : ViewModel() {
 
     fun addTask(task: Task) {
+
+        Log.d("AddTaskScreen", "Task to add: $task")
         //https://chatgpt.com/share/6751d453-4a88-8004-a975-22ce544b3a7b
         viewModelScope.launch(Dispatchers.IO) { //making the operation run on a separate thread to prevent crashes
             try {

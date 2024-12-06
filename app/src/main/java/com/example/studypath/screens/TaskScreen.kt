@@ -56,6 +56,7 @@ fun TaskScreen(
     onLogoutClick: () -> Unit
 ) {
     var fetchedData by remember { mutableStateOf<Pair<User?, List<Task>>?>(null) }
+
     LaunchedEffect(userEmail) {
         fetchedData = userViewModel.fetchUserAndTasks(userEmail)
     }
@@ -65,6 +66,8 @@ fun TaskScreen(
     if (fetchedData == null) {
         Text("Loading...")
     } else {
+
+        Log.d("TaskScreen", "User ID: ${fetchedData!!.first}")
 
         MainScreenWithSidebar(
             userEmail = userEmail,
@@ -76,23 +79,7 @@ fun TaskScreen(
                     if (fetchedData?.first != null) {
                         FloatingActionButton(
                             onClick = {
-                                Log.d("TaskScreen", "User ID: ${fetchedData!!.first?.userId}")
-
-
-                                val testTask = Task(
-                                    name = "Test Task",
-                                    description = "This is a test task.",
-                                    dueDate = "2024-12-15",
-                                    priority = 2, // Medium priority
-                                    userId = fetchedData!!.first?.userId ?: 0,
-                                    subtasks = listOf(
-                                        Subtasks(name = "Subtask 1", completed = false, taskId = 1),
-                                        Subtasks(name = "Subtask 2", completed = true, taskId = 1),
-                                    )
-                                )
-
-
-                                taskViewModel.addTask(testTask)
+                                onAddTaskClick()
                             }) {
                             Icon(
                                 Icons.Default.Add,

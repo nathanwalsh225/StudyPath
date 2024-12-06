@@ -1,5 +1,6 @@
 package com.example.studypath.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -172,6 +173,7 @@ fun RegisterScreen(
                         ) {
                             errorMessage = "Password does not meet requirements."
                         } else {
+                            Log.d("TaskScreen", "Registering user")
                             authViewModel.register(
                                 firstName,
                                 lastName,

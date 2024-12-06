@@ -16,7 +16,6 @@ data class Task(
     val taskId: Int = 0,
     val userId: Int,
     val name: String,
-    val description: String,
     val dueDate: String,
     val priority: Int, //Priority is an integer from | 1 - Low | 2 - Medium | 3 - High |
     val subtasks: List<Subtasks>

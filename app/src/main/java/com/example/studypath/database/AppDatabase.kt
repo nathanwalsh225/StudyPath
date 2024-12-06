@@ -11,7 +11,7 @@ import com.example.studypath.repository.SubtaskDao
 import com.example.studypath.repository.TaskDao
 import com.example.studypath.repository.UserDao
 
-@Database(entities = [Task::class, Subtasks::class, User::class], version = 3)
+@Database(entities = [Task::class, Subtasks::class, User::class], version = 4)
 @TypeConverters(SubtaskConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 

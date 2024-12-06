@@ -2,11 +2,13 @@ package com.example.studypath.navigation
 
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.studypath.database.DatabaseProvider
+import com.example.studypath.screens.AddTaskScreen
 import com.example.studypath.screens.LoginScreen
 import com.example.studypath.screens.RegisterScreen
 import com.example.studypath.screens.TaskScreen
@@ -17,6 +19,24 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+    val context = LocalContext.current
+    val database = DatabaseProvider.getDatabase(context)
+
+    val userViewModel = remember {
+        UserViewModel(
+            userDao = database.userDao(),
+            taskDao = database.taskDao()
+        )
+    }
+
+    val taskViewModel = remember {
+        TaskViewModel(
+            taskDao = database.taskDao(),
+            subtaskDao = database.subtaskDao()
+        )
+    }
+
+
     //TODO Optimize this as I can see it getting messy
     NavHost(
         navController = navController,
@@ -71,20 +91,13 @@ fun NavGraph(navController: NavHostController) {
                 }
             }
 
-            Log.d("TaskScreen", "User: $user")
             val userEmail = user?.email ?: "No Email"
             val userName = user?.displayName ?: "Unknown User"
 
             TaskScreen(
-                taskViewModel = TaskViewModel(
-                    taskDao = DatabaseProvider.getDatabase(context = LocalContext.current).taskDao(),
-                    subtaskDao = DatabaseProvider.getDatabase(context = LocalContext.current).subtaskDao()
-                ),
-                userViewModel = UserViewModel(
-                    userDao = DatabaseProvider.getDatabase(context = LocalContext.current).userDao(),
-                    taskDao = DatabaseProvider.getDatabase(context = LocalContext.current).taskDao()
-                ),
-                onAddTaskClick = { },
+                taskViewModel = taskViewModel,
+                userViewModel = userViewModel,
+                onAddTaskClick = { navController.navigate("addTask") },
                 userName = userName,
                 userEmail = userEmail,
                 onLogoutClick = {
@@ -95,6 +108,19 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onEditTaskClick = { }
             )
+        }
+
+        composable("addTask") {
+            Log.d("NavGraph", "Add Task")
+            AddTaskScreen(
+                userViewModel = userViewModel,
+                taskViewModel = taskViewModel,
+                onTaskAdded = {
+                    navController.popBackStack()
+                },
+                onBackClicked = { navController.popBackStack() }
+            )
+
         }
     }
 }

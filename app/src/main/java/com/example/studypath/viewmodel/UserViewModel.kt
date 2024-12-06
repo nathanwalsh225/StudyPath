@@ -22,9 +22,10 @@ class UserViewModel(private val userDao: UserDao, private val taskDao: TaskDao) 
     suspend fun fetchUserAndTasks(email: String): Pair<User?, List<Task>> {
         return withContext(Dispatchers.IO) {
             try {
+                Log.d("TaskScreen", "Fetching user and tasks for $email")
                 val fetchedUser = userDao.getUserByEmail(email.trim())
                 user.value = fetchedUser
-
+                Log.d("TaskScreen", "Fetching user and tasks for $fetchedUser")
                 val fetchedTasks = fetchedUser?.let {
                     taskDao.getAllTasksForUser(it.userId)
                 } ?: emptyList()
