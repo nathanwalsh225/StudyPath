@@ -177,7 +177,8 @@ fun RegisterScreen(
                                 lastName,
                                 email,
                                 password,
-                                onRegisterSuccess
+                                onRegisterSuccess,
+                                onError = { errorMessage = it }
                             )
                         }
                     },

@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
 //https://stackoverflow.com/questions/49414476/using-rooms-foreignkey-as-entity-parameter-in-kotlin
 //https://chatgpt.com/share/6751bfd9-4be8-8004-ad72-4c4928d9624e
 @Entity(tableName = "subtasks",
-    foreignKeys = [ForeignKey(entity = Task::class, parentColumns = ["id"], childColumns = ["taskId"], onDelete = CASCADE)],
+    foreignKeys = [ForeignKey(entity = Task::class, parentColumns = ["taskId"], childColumns = ["taskId"], onDelete = CASCADE)],
     indices = [Index(value = ["taskId"])]
 )
 data class Subtasks(

@@ -3,18 +3,21 @@ package com.example.studypath.repository
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.studypath.model.Task
+import com.example.studypath.model.User
 
 //Task Repository
 @Dao
 interface TaskDao {
-    @Insert
-    fun insertTask(task: Task)
 
-    @Query("SELECT * FROM tasks ORDER BY dueDate ASC")
-    fun getAllTasks(): LiveData<List<Task>>
+    @Query("SELECT * FROM tasks WHERE userId = :userId ORDER BY dueDate ASC")
+    fun getAllTasksForUser(userId: Int): List<Task>
 
-    @Query("DELETE FROM tasks WHERE id = :taskId")
+    @Query("DELETE FROM tasks WHERE taskId = :taskId")
     fun deleteTask(taskId : Int)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTask(task: Task) : Long
 }

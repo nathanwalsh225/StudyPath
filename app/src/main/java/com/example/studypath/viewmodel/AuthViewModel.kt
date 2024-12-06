@@ -1,12 +1,16 @@
 package com.example.studypath.viewmodel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.studypath.model.User
+import com.example.studypath.repository.UserDao
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(private val userDao: UserDao) : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     fun login(email: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -20,7 +24,7 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    fun register(firstName: String, lastName: String, email: String, password: String, onRegisterSuccess: () -> Unit) {
+    fun register(firstName: String, lastName: String, email: String, password: String, onRegisterSuccess: () -> Unit, onError: (String) -> Unit) {
         val auth = FirebaseAuth.getInstance()
 
         auth.createUserWithEmailAndPassword(email, password)
@@ -36,6 +40,14 @@ class AuthViewModel : ViewModel() {
                         ?.addOnCompleteListener { profileTask ->
                             if (profileTask.isSuccessful) {
                                 onRegisterSuccess()
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    val id = userDao.insertUser(User(0, email, password, firstName, lastName)) //Inserting user to DB
+                                    if (id > 0) {
+                                        println("User inserted successfully")
+                                    } else {
+                                        onError("Profile update failed: ${profileTask.exception?.message}")
+                                    }
+                                }
                             } else {
                                 // Error for if the profile was unable to update
                                 println("Profile update error: ${profileTask.exception?.message}")

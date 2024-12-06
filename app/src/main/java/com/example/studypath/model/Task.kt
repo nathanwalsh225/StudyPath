@@ -1,13 +1,20 @@
 package com.example.studypath.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "tasks")
+@Entity(tableName = "tasks",
+    foreignKeys = [ForeignKey(entity = User::class, parentColumns = ["userId"], childColumns = ["userId"], onDelete = CASCADE)],
+    indices = [Index(value = ["userId"])]
+)
 data class Task(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val taskId: Int = 0,
+    val userId: Int,
     val name: String,
     val description: String,
     val dueDate: String,

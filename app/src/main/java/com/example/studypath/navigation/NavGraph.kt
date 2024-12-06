@@ -12,27 +12,26 @@ import com.example.studypath.screens.RegisterScreen
 import com.example.studypath.screens.TaskScreen
 import com.example.studypath.viewmodel.AuthViewModel
 import com.example.studypath.viewmodel.TaskViewModel
+import com.example.studypath.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+    //TODO Optimize this as I can see it getting messy
     NavHost(
         navController = navController,
         startDestination = "login",
     ) {
-        val authViewModel = AuthViewModel()
-
-
         composable("login") {
-            //clear the db just incase
+            //can be used to clear the db just incase
 //            val database = DatabaseProvider.getDatabase(LocalContext.current)
 //            database.clearAllTables()
 
 //            LocalContext.current.deleteDatabase("study-path-db")
 
-
+            val userDao = DatabaseProvider.getDatabase(LocalContext.current).userDao()
             LoginScreen(
-                authViewModel = authViewModel,
+                authViewModel = AuthViewModel(userDao),
                 onLoginSuccess = {
                     navController.navigate("task") {
                         popUpTo("login") {
@@ -48,8 +47,9 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("register") {
+            val userDao = DatabaseProvider.getDatabase(LocalContext.current).userDao()
             RegisterScreen(
-                authViewModel = authViewModel,
+                authViewModel = AuthViewModel(userDao),
                 onRegisterSuccess = {
                     navController.navigate("task") {
                         popUpTo("register") {
@@ -71,13 +71,19 @@ fun NavGraph(navController: NavHostController) {
                 }
             }
 
-            val taskDao = DatabaseProvider.getDatabase(context = LocalContext.current).taskDao()
-            val viewModel = TaskViewModel(taskDao)
+            Log.d("TaskScreen", "User: $user")
             val userEmail = user?.email ?: "No Email"
             val userName = user?.displayName ?: "Unknown User"
 
             TaskScreen(
-                viewModel = viewModel,
+                taskViewModel = TaskViewModel(
+                    taskDao = DatabaseProvider.getDatabase(context = LocalContext.current).taskDao(),
+                    subtaskDao = DatabaseProvider.getDatabase(context = LocalContext.current).subtaskDao()
+                ),
+                userViewModel = UserViewModel(
+                    userDao = DatabaseProvider.getDatabase(context = LocalContext.current).userDao(),
+                    taskDao = DatabaseProvider.getDatabase(context = LocalContext.current).taskDao()
+                ),
                 onAddTaskClick = { },
                 userName = userName,
                 userEmail = userEmail,

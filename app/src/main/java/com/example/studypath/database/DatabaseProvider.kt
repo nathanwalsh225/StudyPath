@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 
 //Singleton class for providing the database
+//https://developer.android.com/reference/android/arch/persistence/room/RoomDatabase.Builder
 object DatabaseProvider {
     private var INSTANCE: AppDatabase? = null
 
@@ -14,7 +15,8 @@ object DatabaseProvider {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "study-path-db"
-            ).build()
+            ).fallbackToDestructiveMigration()
+                .build()
         }
         return INSTANCE!!
     }
