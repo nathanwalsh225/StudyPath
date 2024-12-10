@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
 data class Subtasks(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val taskId: Int,
+    var taskId: Int,
     val name: String,
     val completed: Boolean
 )

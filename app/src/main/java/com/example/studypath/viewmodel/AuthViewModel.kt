@@ -16,10 +16,10 @@ import kotlinx.coroutines.launch
 class AuthViewModel(private val userDao: UserDao, context: Context) : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-
-    init {
-        DatabaseProvider.getDatabase(context, true)
-    }
+        //code to delete db if needed
+//    init {
+//        DatabaseProvider.getDatabase(context, true)
+//    }
 
 
     fun login(email: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {

@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.studypath.model.Subtasks
 import com.example.studypath.model.Task
 import com.example.studypath.model.User
 
@@ -20,4 +21,7 @@ interface TaskDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTask(task: Task) : Long
+
+    @Query("UPDATE tasks SET subtasks = :subtasks WHERE taskId = :taskId")
+    fun updateSubtasks(taskId: Int, subtasks: List<Subtasks>)
 }

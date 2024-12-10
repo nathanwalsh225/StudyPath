@@ -8,12 +8,11 @@ import androidx.room.Room
 object DatabaseProvider {
     private var INSTANCE: AppDatabase? = null
 
-    //Got this from Patrick Davis
     fun getDatabase(context: Context, clearDb: Boolean = false): AppDatabase {
 
-        if(clearDb){
-            context.deleteDatabase("study-path-db")
-        }
+//        if(clearDb){
+//            context.deleteDatabase("study-path-db")
+//        }
 
         if (INSTANCE == null) {
             //create the db using Room.databaseBuilder
