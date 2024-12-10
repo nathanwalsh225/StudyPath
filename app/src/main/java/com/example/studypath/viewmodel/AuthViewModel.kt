@@ -1,8 +1,11 @@
 package com.example.studypath.viewmodel
 
+import android.content.Context
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.studypath.database.DatabaseProvider
 import com.example.studypath.model.User
 import com.example.studypath.repository.UserDao
 import com.google.firebase.auth.FirebaseAuth
@@ -10,8 +13,14 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val userDao: UserDao) : ViewModel() {
+class AuthViewModel(private val userDao: UserDao, context: Context) : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+
+    init {
+        DatabaseProvider.getDatabase(context, true)
+    }
+
 
     fun login(email: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
@@ -26,7 +35,7 @@ class AuthViewModel(private val userDao: UserDao) : ViewModel() {
 
     fun register(firstName: String, lastName: String, email: String, password: String, onRegisterSuccess: () -> Unit, onError: (String) -> Unit) {
         val auth = FirebaseAuth.getInstance()
-
+        Log.d("TaskScreen", "Got in")
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {

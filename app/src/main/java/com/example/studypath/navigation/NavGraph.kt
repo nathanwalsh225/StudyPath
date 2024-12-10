@@ -43,15 +43,10 @@ fun NavGraph(navController: NavHostController) {
         startDestination = "login",
     ) {
         composable("login") {
-            //can be used to clear the db just incase
-//            val database = DatabaseProvider.getDatabase(LocalContext.current)
-//            database.clearAllTables()
-
-//            LocalContext.current.deleteDatabase("study-path-db")
 
             val userDao = DatabaseProvider.getDatabase(LocalContext.current).userDao()
             LoginScreen(
-                authViewModel = AuthViewModel(userDao),
+                authViewModel = AuthViewModel(userDao, context),
                 onLoginSuccess = {
                     navController.navigate("task") {
                         popUpTo("login") {
@@ -69,7 +64,7 @@ fun NavGraph(navController: NavHostController) {
         composable("register") {
             val userDao = DatabaseProvider.getDatabase(LocalContext.current).userDao()
             RegisterScreen(
-                authViewModel = AuthViewModel(userDao),
+                authViewModel = AuthViewModel(userDao, context),
                 onRegisterSuccess = {
                     navController.navigate("task") {
                         popUpTo("register") {
@@ -111,7 +106,6 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("addTask") {
-            Log.d("NavGraph", "Add Task")
             AddTaskScreen(
                 userViewModel = userViewModel,
                 taskViewModel = taskViewModel,
