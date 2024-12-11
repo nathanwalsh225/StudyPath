@@ -16,11 +16,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -35,16 +37,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studypath.model.Subtasks
 import com.example.studypath.model.Task
 import com.example.studypath.model.User
+import com.example.studypath.repository.TaskDao
+import com.example.studypath.repository.UserDao
+import com.example.studypath.ui.theme.StudyPathTheme
 import com.example.studypath.viewmodel.TaskViewModel
 import com.example.studypath.viewmodel.UserViewModel
 
 @Composable
 fun AddTaskScreen(
-    userViewModel: UserViewModel,
-    taskViewModel: TaskViewModel,
+    userViewModel: UserViewModel?,
+    taskViewModel: TaskViewModel?,
     onTaskAdded: () -> Unit,
     onBackClicked: () -> Unit
 ) {
@@ -77,139 +84,210 @@ fun AddTaskScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(16.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
                 })
             }
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Add Task",
-                style = MaterialTheme.typography.headlineMedium
-            )
+            item {
+                Text(
+                    text = "Add Task",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                )
+            }
 
-            TextField(
-                value = taskName,
-                onValueChange = { taskName = it },
-                label = { Text("Task Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            item {
+                TextField(
+                    value = taskName,
+                    onValueChange = { taskName = it },
+                    label = { Text("Task Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+            item {
+                Text(
+                    text = "Priority",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                )
+            }
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    listOf(1 to "Low", 2 to "Medium", 3 to "High").forEach { (value, label) ->
+                        Button(
+                            onClick = { priority = value },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (priority == value)
+                                    MaterialTheme.colorScheme.secondary
+                                else
+                                    MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(4.dp)
+                        ) {
+                            Text(label, color = MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
+                }
+            }
 
 
-            Text(
-                text = "Priority",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            listOf(1, 2, 3).forEach { option ->
+            item {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { priority = option }
-                        .padding(8.dp)
+                        .clickable { datePickerDialog.show() } //show the datepicker initiallized above on click
+                        .padding(vertical = 8.dp)
                 ) {
-                    RadioButton(
-                        selected = priority == option,
-                        onClick = { priority = option },
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = when (option) {
-                            1 -> "Low"
-                            2 -> "Medium"
-                            3 -> "High"
-                            else -> ""
-                        },
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "Due Date",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = dueDate.ifEmpty { "Select Due Date" },
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     )
                 }
-
-
             }
 
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { datePickerDialog.show() } //show the datepicker initiallized above on click
-            ) {
-                Text(
-                    text = "Due Date",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = dueDate.ifEmpty { "Select Due Date" },
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            item {
+                Spacer(modifier = Modifier.padding(16.dp))
             }
 
-            Text("Sub-Tasks:", style = MaterialTheme.typography.bodyLarge)
-            subtasks.forEachIndexed { index, subtask ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextField(
-                        value = subtask,
-                        onValueChange = { newValue -> //bit of an akaward work around I think but maybe its okay, was getting crashes doing it the with mutableListOf for the subtaks initially so im just updating the list entirely
-                            subtasks = subtasks.toMutableList().apply { set(index, newValue) }
-                        },
-                        modifier = Modifier.weight(1f),
-                        label = { Text("Sub-Task ${index + 1}") }
+
+            item {
+                Text(
+                    text = "Sub-Tasks:",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.secondary
                     )
-                    IconButton(onClick = {
-                        subtasks = subtasks.toMutableList().apply { removeAt(index) }
-                    }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete Sub-Task")
-                    }
-                }
-
+                )
             }
 
-            Button(onClick = {
-                subtasks = subtasks.toMutableList().apply { add("") }
-            }) {
-                Text("Add Sub-Task")
-            }
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(onClick = {
-                    //Create the task and submit it
-                    Log.d("AddTaskScreen", "Adding task")
-                    val task = Task(
-                        name = taskName,
-                        dueDate = dueDate,
-                        priority = priority,
-                        userId = userViewModel.user.value?.userId ?: 0,
-                        subtasks = subtasks.mapIndexed { index, name ->
-                            Subtasks(
-                                name = name,
-                                completed = false,
-                                taskId = 0
+                    items(subtasks.size) { index ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            TextField(
+                                value = subtasks[index],
+                                onValueChange = { newValue ->
+                                    subtasks =
+                                        subtasks.toMutableList().apply { set(index, newValue) }
+                                },
+                                label = { Text("Subtask ${index + 1}") },
+                                modifier = Modifier.weight(1f)
                             )
+                            IconButton(onClick = {
+                                subtasks = subtasks.toMutableList().apply { removeAt(index) }
+                            }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete Subtask"
+                                )
+                            }
                         }
+                    }
+
+            item {
+                Button(
+                    onClick = { subtasks = subtasks + "" },
+                    //subtasks = subtasks.toMutableList().apply { add("") }
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
                     )
-                    taskViewModel.addTask(task)
-                    onTaskAdded()
-                }) {
-                    Text("ADD TASK")
+                ) {
+                    Text("Add Sub-Task")
                 }
-                Button(onClick = { onBackClicked() }) {
-                    Text("BACK")
+            }
+
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        onClick = {
+                            //Create the task and submit it
+                            if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
+                                val task = Task(
+                                    name = taskName,
+                                    dueDate = dueDate,
+                                    priority = priority,
+                                    userId = userViewModel!!.user.value?.userId ?: 0,
+                                    subtasks = subtasks.map { name ->
+                                        Subtasks(
+                                            name = name,
+                                            completed = false,
+                                            taskId = 0
+                                        )
+                                    }
+                                )
+
+                                userViewModel.user.value?.let {
+                                    taskViewModel!!.addTask(
+                                        task,
+                                        it.email
+                                    )
+                                }
+                                onTaskAdded()
+                            }
+                        }) {
+                        Text("ADD TASK")
+                    }
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        onClick = { onBackClicked() }
+                    ) {
+                        Text("BACK")
+                    }
                 }
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AddTaskScreenPreview() {
+    StudyPathTheme(dynamicColor = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            AddTaskScreen(
+                userViewModel = null,
+                taskViewModel = null,
+                onTaskAdded = { /*TODO*/ }) {
+            }
+        }
+    }
+
 }

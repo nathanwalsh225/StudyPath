@@ -3,6 +3,7 @@ package com.example.studypath.navigation
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -29,7 +30,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.studypath.ui.theme.StudyPathTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -94,32 +101,49 @@ fun SidebarContent(
         modifier = Modifier
             .fillMaxWidth(0.75f)
             .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.colorScheme.background
+                    )
+                )
+            )
             .padding(16.dp)
     ) {
         Text(
             text = "Menu",
             style = MaterialTheme.typography.titleLarge.copy( //.copy gets that paticular style but allows me to still edit certain bits eg. color
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.background,
+                fontWeight = FontWeight.Bold
             ),
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.padding(vertical = 16.dp)
         )
         
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Account Name: $userName",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onPrimary
+            text = "Account Details",
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = MaterialTheme.colorScheme.surface,
+                fontWeight = FontWeight.Bold
             ),
             modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Text(
+            text = "Account Name: $userName",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.surface
+            ),
+            modifier = Modifier.padding(bottom = 4.dp)
         )
         Text(
                 text = "Email: $userEmail",
         style = MaterialTheme.typography.bodySmall.copy(
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.surface
         ),
-        modifier = Modifier.padding(bottom = 24.dp)
+        modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Spacer(modifier = Modifier.weight(1f)) //Push the logout button to the bottom
@@ -128,7 +152,13 @@ fun SidebarContent(
             onClick = {
                 onLogoutClick()
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.error,
+                    shape = MaterialTheme.shapes.medium
+                ),
             colors = ButtonDefaults.buttonColors(
                 contentColor = MaterialTheme.colorScheme.error,
                 containerColor = MaterialTheme.colorScheme.onError
@@ -136,5 +166,19 @@ fun SidebarContent(
         ) {
             Text( text = "LOGOUT")
         }
+    }
+}
+
+@Preview
+@Composable
+fun SideBarPreview() {
+    StudyPathTheme(dynamicColor = false) {
+
+        MainScreenWithSidebar(
+            userEmail = "nathanwalsh225@gmail.com",
+            userName = "Nathan Walsh",
+            onLogoutClick = {},
+            content = {},
+        )
     }
 }

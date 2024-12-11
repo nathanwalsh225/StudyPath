@@ -24,12 +24,13 @@ class UserViewModel(private val userDao: UserDao, private val taskDao: TaskDao) 
             try {
                 Log.d("TaskScreen", "Fetching user and tasks for $email")
                 val fetchedUser = userDao.getUserByEmail(email.trim())
-                user.value = fetchedUser
-                Log.d("TaskScreen", "Fetching user and tasks for $fetchedUser")
                 val fetchedTasks = fetchedUser?.let {
                     taskDao.getAllTasksForUser(it.userId)
                 } ?: emptyList()
+
+                user.value = fetchedUser
                 tasks.value = fetchedTasks
+
                 Pair(fetchedUser, fetchedTasks)
             } catch (e: Exception) {
                 Log.d("UserViewModel", "Failed to fetch user - ${e.message}")

@@ -9,10 +9,15 @@ import com.example.studypath.repository.SubtaskDao
 import com.example.studypath.repository.TaskDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class TaskViewModel(private val taskDao: TaskDao, private val subtaskDao: SubtaskDao) : ViewModel() {
+class TaskViewModel(
+    private val taskDao: TaskDao,
+    private val subtaskDao: SubtaskDao,
+    private val userViewModel: UserViewModel
+) : ViewModel() {
 
-    fun addTask(task: Task) {
+    fun addTask(task: Task, email: String) {
         //https://chatgpt.com/share/6751d453-4a88-8004-a975-22ce544b3a7b
         viewModelScope.launch(Dispatchers.IO) { //making the operation run on a separate thread to prevent crashes
             try {
@@ -28,15 +33,7 @@ class TaskViewModel(private val taskDao: TaskDao, private val subtaskDao: Subtas
                 Log.d("TaskScreen", "Task added: $updatedTask")
                 taskDao.updateSubtasks(taskId, updatedSubtasks)
 
-                //TODO TEMPROARY FIX, need to fix the subtask insertion
-                //If you are reading this, please dont - I clearly forgot / didnt fix this
-                //I need to be able to ensure each subtask is assigned the correct correlating task id, however I cannot get the taskId
-                //Unit I actually create the task in the DB, unless I manually assign it here in the code, which I will not do for obvious reasons
-                //As a result my temporary fix is to just insert the subtasks with the task id as 0, which is not ideal but it works for now
-                //and then get the id of the task created, and update the subtasks with the correct task id then reupdate the task
-                //Without the second insert (which just acts as an update) the subtasks will not be assigned the correct task id in the DB
-                //taskDao.insertTask(createdTask)
-
+                 userViewModel.fetchUserAndTasks(email)
                 Log.d("TaskViewModel", "Task added: $taskId")
             } catch (e: Exception) {
                 Log.d("TaskViewModel", "Task not added: $task - ${e.message}")
@@ -44,9 +41,16 @@ class TaskViewModel(private val taskDao: TaskDao, private val subtaskDao: Subtas
         }
     }
 
-    fun deleteTask(taskId: Int) {
+     fun deleteTask(taskId: Int, onRefresh: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            taskDao.deleteTask(taskId)
+            try {
+                taskDao.deleteTask(taskId)
+                withContext(Dispatchers.Main) {
+                    onRefresh()
+                }
+            } catch (e: Exception) {
+                Log.d("TaskViewModel", "Error -${e.message}")
+            }
         }
     }
 

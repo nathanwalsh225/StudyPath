@@ -43,11 +43,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import com.example.studypath.model.Task
 import com.example.studypath.model.User
 import com.example.studypath.navigation.MainScreenWithSidebar
 import com.example.studypath.viewmodel.TaskViewModel
 import com.example.studypath.viewmodel.UserViewModel
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -57,7 +59,6 @@ fun TaskScreen(
     onAddTaskClick: () -> Unit,
     userName: String,
     userEmail: String,
-    onEditTaskClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
     var fetchedData by remember { mutableStateOf<Pair<User?, List<Task>>?>(null) }
@@ -87,6 +88,7 @@ fun TaskScreen(
             },
 
             bottomBar = { BottomNavigationBar() }
+
         ) { paddingValues ->
             //TODO maybe implement loading Icon
             if (fetchedData == null) { //If data has not yet been fetched, just give a loading message
@@ -108,7 +110,19 @@ fun TaskScreen(
                 ) {
                     items(fetchedData!!.second) { task ->
                         Log.d("TaskScreen", "Task: $task")
-                        TaskCard(task, onEditTaskClick)
+                        TaskCard(
+                            task,
+                            onEditTaskClick = {
+
+                            },
+                            onDeleteTaskClick = { taskId ->
+                                taskViewModel.deleteTask(taskId) {
+                                    taskViewModel.viewModelScope.launch {
+                                        fetchedData = userViewModel.fetchUserAndTasks(userEmail)
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -118,7 +132,7 @@ fun TaskScreen(
 
 
 @Composable
-fun TaskCard(task: Task, onEditTaskClick: () -> Unit) {
+fun TaskCard(task: Task, onEditTaskClick: () -> Unit, onDeleteTaskClick: (Int) -> Unit) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Card(
@@ -189,6 +203,14 @@ fun TaskCard(task: Task, onEditTaskClick: () -> Unit) {
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background)
                 ) {
                     Text("Edit")
+                }
+
+                Button(
+                    onClick = { onDeleteTaskClick(task.taskId) },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background)
+                ) {
+                    Text("Delete")
                 }
             }
         }

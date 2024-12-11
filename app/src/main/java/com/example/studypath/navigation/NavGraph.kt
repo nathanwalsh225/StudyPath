@@ -31,7 +31,8 @@ fun NavGraph(navController: NavHostController) {
     val taskViewModel = remember {
         TaskViewModel(
             taskDao = database.taskDao(),
-            subtaskDao = database.subtaskDao()
+            subtaskDao = database.subtaskDao(),
+            userViewModel = userViewModel
         )
     }
 
@@ -99,8 +100,7 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigate("login") {
                         popUpTo("task") { inclusive = true }
                     }
-                },
-                onEditTaskClick = { }
+                }
             )
         }
 
