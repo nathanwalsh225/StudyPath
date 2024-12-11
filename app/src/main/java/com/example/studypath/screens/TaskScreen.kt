@@ -57,6 +57,7 @@ fun TaskScreen(
     taskViewModel: TaskViewModel,
     userViewModel: UserViewModel, //TODO remove ? after testing
     onAddTaskClick: () -> Unit,
+    onEditTaskClick: (Task) -> Unit,
     userName: String,
     userEmail: String,
     onLogoutClick: () -> Unit
@@ -109,11 +110,10 @@ fun TaskScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(fetchedData!!.second) { task ->
-                        Log.d("TaskScreen", "Task: $task")
                         TaskCard(
                             task,
-                            onEditTaskClick = {
-
+                            onEditTaskClick = { task ->
+                                onEditTaskClick(task)
                             },
                             onDeleteTaskClick = { taskId ->
                                 taskViewModel.deleteTask(taskId) {
@@ -132,7 +132,7 @@ fun TaskScreen(
 
 
 @Composable
-fun TaskCard(task: Task, onEditTaskClick: () -> Unit, onDeleteTaskClick: (Int) -> Unit) {
+fun TaskCard(task: Task, onEditTaskClick: (Task) -> Unit, onDeleteTaskClick: (Int) -> Unit) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Card(
@@ -169,12 +169,16 @@ fun TaskCard(task: Task, onEditTaskClick: () -> Unit, onDeleteTaskClick: (Int) -
         //Subtasks Collapsable
         AnimatedVisibility(visible = isExpanded) {
             Box(
-                modifier = Modifier.heightIn(max = 200.dp) // Limit the height of expanded subtasks to prevent infinite expansion error
+                modifier = Modifier
+                    .heightIn(max = 200.dp) // Limit the height of expanded subtasks to prevent infinite expansion error
             ) {
                 if (task.subtasks.isEmpty()) {
-                    Text("Keep up the good work!", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = "Keep up the good work!",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 } else {
-                    Log.d("TaskScreen", "Subtasks: ${task.subtasks}")
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -188,7 +192,17 @@ fun TaskCard(task: Task, onEditTaskClick: () -> Unit, onDeleteTaskClick: (Int) -
                             ) {
                                 Checkbox(
                                     checked = subtask.completed,
-                                    onCheckedChange = { },
+                                    //having to copy and reapply the subtask list for completing one because it wouldnt recompose previously
+                                    //as room does not support mutableLists
+                                    onCheckedChange = { isChecked ->
+                                        task.subtasks = task.subtasks.map { currentSubtask ->
+                                            if (currentSubtask.id == subtask.id) {
+                                                currentSubtask.copy(completed = isChecked)
+                                            } else {
+                                                currentSubtask
+                                            }
+                                        }
+                                    },
                                     modifier = Modifier.align(Alignment.CenterVertically)
                                 )
                                 Text(subtask.name, style = MaterialTheme.typography.bodyMedium)
@@ -197,28 +211,29 @@ fun TaskCard(task: Task, onEditTaskClick: () -> Unit, onDeleteTaskClick: (Int) -
                     }
                 }
 
-                Button(
-                    onClick = { onEditTaskClick() },
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
-                    Text("Edit")
-                }
+                    Button(
+                        onClick = { onEditTaskClick(task) },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background)
+                    ) {
+                        Text("Edit")
+                    }
 
-                Button(
-                    onClick = { onDeleteTaskClick(task.taskId) },
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background)
-                ) {
-                    Text("Delete")
+                    Button(
+                        onClick = { onDeleteTaskClick(task.taskId) },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background)
+                    ) {
+                        Text("Delete")
+                    }
                 }
             }
         }
-
-
     }
-
-
 }
 
 @Composable

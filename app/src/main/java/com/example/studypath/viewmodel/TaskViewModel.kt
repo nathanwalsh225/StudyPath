@@ -33,10 +33,47 @@ class TaskViewModel(
                 Log.d("TaskScreen", "Task added: $updatedTask")
                 taskDao.updateSubtasks(taskId, updatedSubtasks)
 
-                 userViewModel.fetchUserAndTasks(email)
+                userViewModel.fetchUserAndTasks(email)
                 Log.d("TaskViewModel", "Task added: $taskId")
             } catch (e: Exception) {
                 Log.d("TaskViewModel", "Task not added: $task - ${e.message}")
+            }
+        }
+    }
+
+    fun updateTask(task: Task) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                Log.d("TaskViewModel", "Task updated: $task")
+                taskDao.updateTask(task)
+
+                val updatedSubtasks = mutableListOf<Subtasks>()
+
+                task.subtasks.forEach { subtask ->
+                    if (subtask.id > 0) {
+                        updatedSubtasks.add(subtask)
+                        taskDao.updateSubtasks(task.taskId, updatedSubtasks)
+                    } else {
+                        val subtaskId = subtaskDao.insertSubtasks(subtask.copy(taskId = task.taskId)).toInt()
+                        updatedSubtasks.add(subtask.copy(id = subtaskId))
+                        taskDao.updateSubtasks(task.taskId, updatedSubtasks)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("TaskViewModel", "Task not updated: $task - ${e.message}")
+            }
+        }
+    }
+
+    suspend fun getTask(taskId: Int): Task {
+        return withContext(Dispatchers.IO) {
+            try {
+                val task = taskDao.getTask(taskId)
+                Log.d("TaskViewModel", "Task fetched: $task")
+                task!!
+            } catch (e: Exception) {
+                Log.d("TaskViewModel", "Task not fetched: $taskId - ${e.message}")
+                Task(0, 0, "", "", 0, emptyList())
             }
         }
     }

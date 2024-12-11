@@ -5,13 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -20,12 +18,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,30 +31,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studypath.model.Subtasks
 import com.example.studypath.model.Task
-import com.example.studypath.model.User
-import com.example.studypath.repository.TaskDao
-import com.example.studypath.repository.UserDao
-import com.example.studypath.ui.theme.StudyPathTheme
 import com.example.studypath.viewmodel.TaskViewModel
 import com.example.studypath.viewmodel.UserViewModel
 
 @Composable
-fun AddTaskScreen(
+fun AddOrUpdateTaskScreen(
     userViewModel: UserViewModel?,
     taskViewModel: TaskViewModel?,
     onTaskAdded: () -> Unit,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    existingTask: Task? = null
 ) {
-    var taskName by remember { mutableStateOf("") }
-    var dueDate by remember { mutableStateOf("") }
-    var priority by remember { mutableStateOf(1) }
-    var subtasks by remember { mutableStateOf(listOf<String>()) }
+    var taskName by remember { mutableStateOf(existingTask?.name ?: "") }
+    var dueDate by remember { mutableStateOf(existingTask?.dueDate ?: "") }
+    var priority by remember { mutableStateOf(existingTask?.priority ?: 1) }
+    var subtasks by remember { mutableStateOf(existingTask?.subtasks?.map { it.name }.orEmpty()) }
     val focusManager = LocalFocusManager.current
 
     //https://chatgpt.com/share/67587500-55fc-8004-af78-0ef35080c015
@@ -98,7 +88,7 @@ fun AddTaskScreen(
         ) {
             item {
                 Text(
-                    text = "Add Task",
+                    text = if (existingTask == null) "Add Task" else "Edit Task",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -237,31 +227,61 @@ fun AddTaskScreen(
                         ),
                         onClick = {
                             //Create the task and submit it
-                            if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
-                                val task = Task(
-                                    name = taskName,
-                                    dueDate = dueDate,
-                                    priority = priority,
-                                    userId = userViewModel!!.user.value?.userId ?: 0,
-                                    subtasks = subtasks.map { name ->
-                                        Subtasks(
-                                            name = name,
-                                            completed = false,
-                                            taskId = 0
+                            if(existingTask == null) { //code for adding task
+                                Log.d("TaskViewModel", "Entered Add")
+                                if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
+                                    val task = Task(
+                                        name = taskName,
+                                        dueDate = dueDate,
+                                        priority = priority,
+                                        userId = userViewModel!!.user.value?.userId ?: 0,
+                                        subtasks = subtasks.map { name ->
+                                            Subtasks(
+                                                name = name,
+                                                completed = false,
+                                                taskId = 0
+                                            )
+                                        }
+                                    )
+
+                                    userViewModel.user.value?.let {
+                                        taskViewModel!!.addTask(
+                                            task,
+                                            it.email
                                         )
                                     }
-                                )
-
-                                userViewModel.user.value?.let {
-                                    taskViewModel!!.addTask(
-                                        task,
-                                        it.email
-                                    )
+                                    onTaskAdded()
                                 }
-                                onTaskAdded()
+                            } else { //code for updating task
+                                Log.d("TaskViewModel", "Entered Edit")
+                                if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
+                                    val task = Task(
+                                        taskId = existingTask.taskId,
+                                        name = taskName,
+                                        dueDate = dueDate,
+                                        priority = priority,
+                                        userId = userViewModel!!.user.value?.userId ?: 0,
+                                        subtasks = subtasks.map { name ->
+                                            Subtasks(
+                                                name = name,
+                                                completed = false, //TODO Might set all subtasks to uncomplete if edited, test
+                                                taskId = existingTask.taskId
+                                            )
+                                        }
+                                    )
+
+                                    userViewModel.user.value?.let {
+                                        taskViewModel!!.updateTask(task)
+                                    }
+                                    onTaskAdded()
+                                }
                             }
                         }) {
-                        Text("ADD TASK")
+                        if (existingTask == null) {
+                            Text("ADD TASK")
+                        } else {
+                            Text("UPDATE TASK")
+                        }
                     }
                     Button(
                         colors = ButtonDefaults.buttonColors(
@@ -275,19 +295,4 @@ fun AddTaskScreen(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun AddTaskScreenPreview() {
-    StudyPathTheme(dynamicColor = false) {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            AddTaskScreen(
-                userViewModel = null,
-                taskViewModel = null,
-                onTaskAdded = { /*TODO*/ }) {
-            }
-        }
-    }
-
 }

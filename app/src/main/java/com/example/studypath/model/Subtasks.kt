@@ -18,5 +18,5 @@ data class Subtasks(
     val id: Int = 0,
     var taskId: Int,
     val name: String,
-    val completed: Boolean
+    var completed: Boolean
 )

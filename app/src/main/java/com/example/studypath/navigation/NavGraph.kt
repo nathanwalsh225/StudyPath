@@ -1,13 +1,18 @@
 package com.example.studypath.navigation
 
+import android.util.Log
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.studypath.database.DatabaseProvider
-import com.example.studypath.screens.AddTaskScreen
+import com.example.studypath.model.Task
+import com.example.studypath.screens.AddOrUpdateTaskScreen
 import com.example.studypath.screens.LoginScreen
 import com.example.studypath.screens.RegisterScreen
 import com.example.studypath.screens.TaskScreen
@@ -79,7 +84,8 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("task") {
-            val user = FirebaseAuth.getInstance().currentUser //If user is not logged in dont allow access TODO is this essential?
+            val user =
+                FirebaseAuth.getInstance().currentUser //If user is not logged in dont allow access TODO is this essential?
             if (user == null) {
                 navController.navigate("login") {
                     popUpTo("task") { inclusive = true }
@@ -93,6 +99,11 @@ fun NavGraph(navController: NavHostController) {
                 taskViewModel = taskViewModel,
                 userViewModel = userViewModel,
                 onAddTaskClick = { navController.navigate("addTask") },
+                onEditTaskClick = { task ->
+                    navController.navigate("updateTask/${task.taskId}") {
+                        popUpTo("updateTask/${task.taskId}") { inclusive = true }
+                    }
+                },
                 userName = userName,
                 userEmail = userEmail,
                 onLogoutClick = {
@@ -105,7 +116,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("addTask") {
-            AddTaskScreen(
+            AddOrUpdateTaskScreen(
                 userViewModel = userViewModel,
                 taskViewModel = taskViewModel,
                 onTaskAdded = {
@@ -114,6 +125,34 @@ fun NavGraph(navController: NavHostController) {
                 onBackClicked = { navController.popBackStack() }
             )
 
+        }
+
+        composable("updateTask/{taskId}") { backStackEntry ->
+            val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull()
+
+            if (taskId == null) {
+                navController.popBackStack()
+            } else {
+                val taskState = remember { mutableStateOf<Task?>(null) }
+
+                LaunchedEffect(taskId) {
+                    taskState.value = taskViewModel.getTask(taskId)
+                }
+                if (taskState.value == null) {
+                    // Show loading or fallback UI
+                    Text("Loading...")
+                } else {
+                    AddOrUpdateTaskScreen(
+                        userViewModel = userViewModel,
+                        taskViewModel = taskViewModel,
+                        onTaskAdded = {
+                            navController.popBackStack()
+                        },
+                        onBackClicked = { navController.popBackStack() },
+                        existingTask = taskState.value
+                    )
+                }
+            }
         }
     }
 }
