@@ -55,6 +55,8 @@ dependencies {
     implementation (platform("com.google.firebase:firebase-bom:32.1.1"))
     implementation ("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.code.gson:gson:2.10")
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

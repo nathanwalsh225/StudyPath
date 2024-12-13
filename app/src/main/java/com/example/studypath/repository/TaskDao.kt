@@ -14,7 +14,7 @@ import com.example.studypath.model.User
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM tasks WHERE userId = :userId ORDER BY dueDate ASC")
+    @Query("SELECT * FROM tasks WHERE userId = :userId ORDER BY priority ASC")
     fun getAllTasksForUser(userId: Int): List<Task>
 
     @Query("DELETE FROM tasks WHERE taskId = :taskId")

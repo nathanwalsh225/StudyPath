@@ -1,6 +1,7 @@
 package com.example.studypath.navigation
 
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,6 +11,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.example.studypath.database.DatabaseProvider
 import com.example.studypath.model.Task
 import com.example.studypath.screens.AddOrUpdateTaskScreen
@@ -22,9 +25,11 @@ import com.example.studypath.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(navController: NavHostController, activityResultLauncher :ActivityResultLauncher<String>) {
     val context = LocalContext.current
     val database = DatabaseProvider.getDatabase(context)
+    Log.d("NavGraph", "Database: ${activityResultLauncher.launch("Permission")}")
+//    WorkManager.initialize(context, Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).build())
 
     val userViewModel = remember {
         UserViewModel(
@@ -91,6 +96,8 @@ fun NavGraph(navController: NavHostController) {
                     popUpTo("task") { inclusive = true }
                 }
             }
+
+            activityResultLauncher.launch("Permission")
 
             val userEmail = user?.email ?: "No Email"
             val userName = user?.displayName ?: "Unknown User"
