@@ -143,7 +143,7 @@ class TaskViewModel(
 
         msgDue.time -= TimeUnit.DAYS.toDays(task.subtasks.size.toLong())
         //msgDue.time -= TimeUnit.DAYS.toMinutes(1)
-        return TimeUnit.SECONDS.toMillis(10)
+        return TimeUnit.SECONDS.toSeconds(5) //at the moment, I will just return 5 seconds
         //return msgDue.time
     }
 }

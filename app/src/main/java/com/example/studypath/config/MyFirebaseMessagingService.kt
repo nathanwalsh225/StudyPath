@@ -25,7 +25,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // manage this apps subscriptions on the server side, send the
         // FCM registration token to your app server.
         //I dont need to send the token to the server
-        //sendRegistrationToServer(token)
+        //sendRegistrationToServer(token) //TODO Maybe remove this
     }
 
     private fun showNotification(title: String, message: String) {

@@ -1,5 +1,6 @@
 package com.example.studypath.screens
 
+import android.app.DatePickerDialog
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -59,7 +60,7 @@ fun AddOrUpdateTaskScreen(
     val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
 
     val context = LocalContext.current
-    val datePickerDialog = android.app.DatePickerDialog(
+    val datePickerDialog = DatePickerDialog(
         context,
         { _, selectedYear, selectedMonth, selectedDay ->
             dueDate = "$selectedDay/${selectedMonth + 1}/$selectedYear" // Update the due date
