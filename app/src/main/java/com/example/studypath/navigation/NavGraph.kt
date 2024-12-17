@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,19 +18,23 @@ import com.example.studypath.database.DatabaseProvider
 import com.example.studypath.model.Task
 import com.example.studypath.screens.AddOrUpdateTaskScreen
 import com.example.studypath.screens.LoginScreen
+import com.example.studypath.screens.NavigationScreen
 import com.example.studypath.screens.RegisterScreen
 import com.example.studypath.screens.TaskScreen
 import com.example.studypath.viewmodel.AuthViewModel
+import com.example.studypath.viewmodel.LocationViewModel
 import com.example.studypath.viewmodel.TaskViewModel
 import com.example.studypath.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavGraph(navController: NavHostController, activityResultLauncher :ActivityResultLauncher<String>) {
+fun NavGraph(
+    navController: NavHostController,
+    activityResultLauncher :ActivityResultLauncher<String>?,
+    locationViewModel: LocationViewModel = viewModel()
+) {
     val context = LocalContext.current
     val database = DatabaseProvider.getDatabase(context)
-    Log.d("NavGraph", "Database: ${activityResultLauncher.launch("Permission")}")
-//    WorkManager.initialize(context, Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).build())
 
     val userViewModel = remember {
         UserViewModel(
@@ -65,7 +70,6 @@ fun NavGraph(navController: NavHostController, activityResultLauncher :ActivityR
                     }
                 },
                 onRegisterClick = {
-
                     navController.navigate("register")
                 }
             )
@@ -97,7 +101,7 @@ fun NavGraph(navController: NavHostController, activityResultLauncher :ActivityR
                 }
             }
 
-            activityResultLauncher.launch("Permission")
+            //activityResultLauncher.launch("Permission")
 
             val userEmail = user?.email ?: "No Email"
             val userName = user?.displayName ?: "Unknown User"
@@ -113,6 +117,7 @@ fun NavGraph(navController: NavHostController, activityResultLauncher :ActivityR
                 },
                 userName = userName,
                 userEmail = userEmail,
+                navController = navController,
                 onLogoutClick = {
                     FirebaseAuth.getInstance().signOut()
                     navController.navigate("login") {
@@ -160,6 +165,25 @@ fun NavGraph(navController: NavHostController, activityResultLauncher :ActivityR
                     )
                 }
             }
+        }
+
+        composable("calender") {
+            Text("Calender")
+        }
+
+        composable("navigation") {
+            NavigationScreen(
+                navController = navController,
+                userEmail = "email",
+                userName = "name",
+                onLogoutClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    navController.navigate("login") {
+                        popUpTo("navigation") { inclusive = true }
+                    }
+                },
+                locationViewModel = locationViewModel
+            )
         }
     }
 }

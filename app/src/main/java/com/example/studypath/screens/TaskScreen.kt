@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -44,8 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import androidx.navigation.NavHost
 import com.example.studypath.model.Task
 import com.example.studypath.model.User
+import com.example.studypath.navigation.BottomAppBar
 import com.example.studypath.navigation.MainScreenWithSidebar
 import com.example.studypath.viewmodel.TaskViewModel
 import com.example.studypath.viewmodel.UserViewModel
@@ -60,6 +62,7 @@ fun TaskScreen(
     onEditTaskClick: (Task) -> Unit,
     userName: String,
     userEmail: String,
+    navController: NavController,
     onLogoutClick: () -> Unit
 ) {
     var fetchedData by remember { mutableStateOf<Pair<User?, List<Task>>?>(null) }
@@ -88,7 +91,7 @@ fun TaskScreen(
                 }
             },
 
-            bottomBar = { BottomNavigationBar() }
+            bottomBar = { BottomAppBar(navController, "task") }
 
         ) { paddingValues ->
             //TODO maybe implement loading Icon
@@ -236,17 +239,17 @@ fun TaskCard(task: Task, onEditTaskClick: (Task) -> Unit, onDeleteTaskClick: (In
     }
 }
 
-@Composable
-fun BottomNavigationBar() {
-    BottomAppBar {
-        IconButton(onClick = { }) {
-            Icon(Icons.Default.List, contentDescription = "Tasks")
-        }
-        IconButton(onClick = { }) {
-            Icon(Icons.Default.DateRange, contentDescription = "Calendar")
-        }
-        IconButton(onClick = { }) {
-            Icon(Icons.Default.Home, contentDescription = "Navigation")
-        }
-    }
-}
+//@Composable
+//fun BottomNavigationBar() {
+//    BottomAppBar {
+//        IconButton(onClick = { }) {
+//            Icon(Icons.Default.List, contentDescription = "Tasks")
+//        }
+//        IconButton(onClick = { }) {
+//            Icon(Icons.Default.DateRange, contentDescription = "Calendar")
+//        }
+//        IconButton(onClick = { }) {
+//            Icon(Icons.Default.Home, contentDescription = "Navigation")
+//        }
+//    }
+//}
