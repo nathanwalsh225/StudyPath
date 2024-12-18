@@ -140,8 +140,7 @@ fun TaskCard(task: Task, onEditTaskClick: (Task) -> Unit, onDeleteTaskClick: (In
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp),
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {

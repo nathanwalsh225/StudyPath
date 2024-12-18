@@ -31,7 +31,6 @@ class LocationViewModel(application: Application) : AndroidViewModel(application
 
         if (!hasPermission()) return
 
-
         fusedLocationProviderClient.lastLocation
             .addOnSuccessListener { location ->
                 if (location != null) {

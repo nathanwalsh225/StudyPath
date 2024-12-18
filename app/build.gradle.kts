@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
-    id("com.google.gms.google-services")
+    alias(libs.plugins.com.google.android.secrets.gradle.plugin)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -39,6 +40,15 @@ android {
     buildFeatures {
         compose = true
     }
+
+//    secrets {
+//        propertiesFileName = "secrets.properties"
+//    }
+
+    kapt {
+        correctErrorTypes = true
+    }
+
 }
 
 dependencies {
@@ -50,7 +60,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.1.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
-    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation("androidx.navigation:navigation-compose:2.7.2")
     implementation (platform("com.google.firebase:firebase-bom:32.1.1"))
     implementation ("com.google.firebase:firebase-auth-ktx")

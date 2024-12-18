@@ -48,8 +48,8 @@ fun RegisterScreen(
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
+   // var errorMessage by remember { mutableStateOf<String?>(null) }
+    var errorMessage by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
     Box(
@@ -179,23 +179,30 @@ fun RegisterScreen(
                     //https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-regex/
                     Button(
                         onClick = {
+
+
                             if (email.isBlank() || password.isBlank() || firstName.isBlank() || lastName.isBlank()) {
                                 errorMessage = "Please fill out all fields"
-                            } else if (password.length < 6 || !password.contains(Regex("[A-Z]")) || !password.contains(
-                                    Regex("[0-9]")
-                                ) || !password.contains(Regex("[!@#\$%^&*(),.?\":{}|<>]"))
+                            } else if (
+                                password.length < 6 ||
+                                !password.contains(Regex("[A-Z]")) ||
+                                !password.contains(Regex("[0-9]")) ||
+                                !password.contains(Regex("[!@#\$%^&*(),.?\":{}|<>]")
+                                )
                             ) {
                                 errorMessage = "Password does not meet requirements."
                             } else {
-                                Log.d("TaskScreen", "Registering user")
-                                authViewModel.register(
-                                    firstName,
-                                    lastName,
-                                    email,
-                                    password,
-                                    onRegisterSuccess,
-                                    onError = { errorMessage = it }
-                                )
+
+                                    Log.d("TaskScreen", "Registering user")
+                                    authViewModel.register(
+                                        firstName,
+                                        lastName,
+                                        email,
+                                        password,
+                                        onRegisterSuccess,
+                                        onError = { errorMessage = it }
+                                    )
+
                             }
                         },
                         modifier = Modifier

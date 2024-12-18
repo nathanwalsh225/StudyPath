@@ -83,14 +83,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-
-
-
-
-
-
-
     private fun initializeApp() {
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->

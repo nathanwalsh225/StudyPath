@@ -39,13 +39,13 @@
             </intent-filter>
         </service>
 
+        <!--   GOOGLE MAPS API KEY-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCYN9Cn4xNa_qnRS5x5fVJ4LxYS4e9vVaM" />
-<!--            GOOGLE MAPS API KEY-->
+            android:value="AIzaSyB5cZXwPrV2R_oJhpP3RLg2rXXv8LkWj88" />
+
 <!--        <meta-data android:name="com.google.android.gms.version"-->
 <!--            android:value="@integer/google_play_services_version" />-->
-
 
     </application>
 
