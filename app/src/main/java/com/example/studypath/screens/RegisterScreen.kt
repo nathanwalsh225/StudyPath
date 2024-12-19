@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -48,9 +50,10 @@ fun RegisterScreen(
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-   // var errorMessage by remember { mutableStateOf<String?>(null) }
     var errorMessage by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    var loading by remember { mutableStateOf(false) }
+
 
     Box(
         modifier = Modifier
@@ -175,14 +178,19 @@ fun RegisterScreen(
                         .align(Alignment.BottomCenter)
                         .padding(vertical = 16.dp)
                 ) {
+
+
+
                     //code for register button authentication, just some Regex I found online
                     //https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-regex/
                     Button(
                         onClick = {
 
+                            loading = true
 
                             if (email.isBlank() || password.isBlank() || firstName.isBlank() || lastName.isBlank()) {
                                 errorMessage = "Please fill out all fields"
+                                loading = false
                             } else if (
                                 password.length < 6 ||
                                 !password.contains(Regex("[A-Z]")) ||
@@ -190,6 +198,7 @@ fun RegisterScreen(
                                 !password.contains(Regex("[!@#\$%^&*(),.?\":{}|<>]")
                                 )
                             ) {
+                                loading = false
                                 errorMessage = "Password does not meet requirements."
                             } else {
 
@@ -213,7 +222,15 @@ fun RegisterScreen(
                             contentColor = MaterialTheme.colorScheme.onSecondary
                         )
                     ) {
-                        Text("REGISTER")
+                        if (loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(25.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        } else {
+                            Text("REGISTER")
+                        }
                     }
 
                     OutlinedButton(

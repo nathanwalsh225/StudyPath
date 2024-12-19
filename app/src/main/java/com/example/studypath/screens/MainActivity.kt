@@ -97,6 +97,9 @@ class MainActivity : ComponentActivity() {
            // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         }
 
+
+        //This is my old code for initializing the app, I had to rework it to get the permissions working
+
 //        setContent {
 //            StudyPathTheme(dynamicColor = false) {
 //                Surface(color = MaterialTheme.colorScheme.background) {

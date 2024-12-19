@@ -2,7 +2,6 @@ package com.example.studypath.viewmodel
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studypath.database.DatabaseProvider
@@ -12,7 +11,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AuthViewModel(private val userDao: UserDao, context: Context) : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -72,7 +70,6 @@ class AuthViewModel(private val userDao: UserDao, context: Context) : ViewModel(
                                                 User(
                                                     0,
                                                     email,
-                                                    password,
                                                     firstName,
                                                     lastName
                                                 )
@@ -100,7 +97,7 @@ class AuthViewModel(private val userDao: UserDao, context: Context) : ViewModel(
     }
 
 
-    fun checkEmail(email: String, onResult: (Boolean) -> Unit) { //TODO fix 
+    fun checkEmail(email: String, onResult: (Boolean) -> Unit) {
         auth.fetchSignInMethodsForEmail(email)
             .addOnCompleteListener { task ->
                if (task.isSuccessful) {

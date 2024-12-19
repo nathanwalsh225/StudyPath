@@ -63,7 +63,8 @@ fun TaskScreen(
     userName: String,
     userEmail: String,
     navController: NavController,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    onContactUsClick: () -> Unit
 ) {
     var fetchedData by remember { mutableStateOf<Pair<User?, List<Task>>?>(null) }
 
@@ -79,7 +80,8 @@ fun TaskScreen(
     MainScreenWithSidebar(
         userEmail = userEmail,
         userName = userName,
-        onLogoutClick = { onLogoutClick() }
+        onLogoutClick = { onLogoutClick() },
+        onContactUsClick = { onContactUsClick() },
     ) {
         Scaffold(
             floatingActionButton = {

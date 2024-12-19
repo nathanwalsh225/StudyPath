@@ -1,145 +1,220 @@
 package com.example.studypath.screens
 
 import android.annotation.SuppressLint
-import android.location.Location
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studypath.navigation.BottomAppBar
-import com.example.studypath.navigation.MainScreenWithSidebar
 import com.example.studypath.viewmodel.LocationViewModel
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.launch
+
+
+//My Maps dont work the same way as bugora, where all markers would be displayed automatically
+//because I want to allow the user to choose a campus/room I need to have the markers display dynamically
+//My idea is to have a list of campus's with hardcoded rooms and coordinates, when the user selects a campus
+//and a room, the marker will be places on that rooms coordinates
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun NavigationScreen(
     navController: NavController,
-    userEmail: String,
-    userName: String,
-    onLogoutClick: () -> Unit,
     locationViewModel: LocationViewModel
 ) {
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("StudyPath" )},
-                    colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.secondary),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            },
-            bottomBar = { BottomAppBar(navController, "task") }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                Text(
-                    text = "Navigation Screen",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
 
-                PlacesMapScreen(
-                    modifier = Modifier.weight(1f),
-                    currentLocation = locationViewModel.lastLocation,
-                    getLastLocation = { locationViewModel.getLastLocation() },
-                    hasLocationPermission = { locationViewModel.hasPermission() },
+    //Hardcoded campus's and rooms with coordinates
+    //Room key = Room name, Value = Coordinates
+    //Map made the most sense to me here because I wanted to allow the user to select a room in a campus and have that automatically assigned
+    //If it wasnt hardcoded it would be more then likely a DB call,
+    // Room entity which could be a child of a Campus entity, with a one to many relationship
+    //Room then would have name and coordinates which I could just get from a call then if it wasnt hardcoded
+    //eg. (GET * FROM Room WHERE Campus = :selectedCampus) gets the room names and coordinates for the selected campus
+    val campusRooms = mapOf(
+        "Limerick: Mid-West" to mapOf(
+            "8A103" to LatLng(52.674815, -8.649234),
+            "8B104" to LatLng(52.675271, -8.648788),
+            "8C201" to LatLng(52.675108, -8.647864)
+        ),
+        "Thurles: Mid-West" to mapOf(
+            "7B108" to LatLng(52.686487, -7.827040),
+            "7A109" to LatLng(52.686448, -7.825751),
+            "Canteen" to LatLng(52.685977, -7.826100)
+        )
+    )
+
+    var selectedCampus by remember { mutableStateOf("Limerick: Mid-West") }
+    var selectedRoom by remember { mutableStateOf("8A103") }
+    var selectedLocation by remember { mutableStateOf(campusRooms[selectedCampus]?.get(selectedRoom)) }
+
+    //Lat, Long for TUS Limerick
+    val defaultLocation = LatLng(52.674868, -8.648741)
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("StudyPath")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.secondary),
+            )
+        },
+        bottomBar = { BottomAppBar(navController, "navigation") }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            PlacesMapScreen(
+                modifier = Modifier.weight(1f),
+                targetLocation = selectedLocation ?: defaultLocation,
+            )
+
+            Row(modifier = Modifier.padding(8.dp)) {
+                Text(
+                    text = "Campus: ",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+                DropDownBox(
+                    options = campusRooms.keys.toList(),
+                    selectedOption = selectedCampus,
+                    onOptionSelected = { //When a user selects a new campus option
+                        selectedCampus = it //First update selected campus
+                        selectedRoom = campusRooms[it]?.keys?.first() ?: "" //Then update selected room to the first room in the new campus, if null, just leave blank for now (wont be null because its hardcoded but still)
+                    }
                 )
             }
+
+
+            Row(modifier = Modifier.padding(8.dp)) {
+                Text(
+                    text = "Room: ",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+                DropDownBox(
+                    options = campusRooms[selectedCampus]?.keys?.toList() ?: emptyList(), //List of rooms depending on selected campus
+                    selectedOption = selectedRoom,
+                    onOptionSelected = {
+                        selectedRoom = it
+                    }
+                )
+            }
+
+            Button(
+                onClick = {
+                    selectedLocation = campusRooms[selectedCampus]?.get(selectedRoom)
+                },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("FIND")
+            }
+
         }
     }
+}
 
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 private fun PlacesMapScreen(
     modifier: Modifier = Modifier,
-    currentLocation: Location?,
-    getLastLocation: () -> Unit = {},
-    hasLocationPermission:  () -> Boolean = { false },
-    //placesList: List<BurgerPlace> = listOf()
+    targetLocation: LatLng,
 ) {
-    //use this for the dimensions of Limerick when running in an emulator
-    val defaultLocation = LatLng(52.6638, -8.6267)
-
-    val cameraPositionState = rememberCameraPositionState {}
-
-    val uiSettings by remember {
-        mutableStateOf(
-            MapUiSettings(
-                compassEnabled = true,
-                myLocationButtonEnabled = true,
-                rotationGesturesEnabled = true,
-                scrollGesturesEnabled = true,
-                scrollGesturesEnabledDuringRotateOrZoom = true,
-                tiltGesturesEnabled = true,
-                zoomControlsEnabled = true,
-                zoomGesturesEnabled = true
-            )
-        )
-    }
-
-    val properties by remember {
-        mutableStateOf(
-            MapProperties(
-                isBuildingEnabled = false,
-                isMyLocationEnabled = hasLocationPermission(),
-                isIndoorEnabled = false,
-                isTrafficEnabled = false,
-                mapType = MapType.NORMAL,
-                maxZoomPreference = 21f,
-                minZoomPreference = 3f
-            )
-        )
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(targetLocation, 15f) // Set initial camera position
     }
 
     GoogleMap(
         modifier = modifier,
-        properties = properties,
-        uiSettings = uiSettings,
         cameraPositionState = cameraPositionState
     ) {
-        getLastLocation()
-        val location = currentLocation?.let {
-            //replace defaultLocation with currentLocation when running on a physical device
-            LatLng(defaultLocation.latitude, defaultLocation.longitude)
-        }
-//        for (place in placesList) {
-//            DisplayMarker(place)
-//        }
-        location?.let {
-            cameraPositionState.move(
-                update = CameraUpdateFactory.newLatLngZoom(it, 12f)
-            )
+        Marker(state = MarkerState(position = targetLocation), title = "Selected Room")
+    }
+}
+
+//Was split between using a ExposedDropdownMenuBox or a Spinner for the dropdown box
+//But after looking at both, Geeks for Geeks says that the "Spinner is not that customizable like the new exposed Drop-Down menu."
+//so i went with the ExposedDropdownMenuBox
+//https://www.geeksforgeeks.org/exposed-drop-down-menu-in-android/
+//This is where I figured out how to use the ExposedDropdownMenuBox
+//https://composables.com/material3/exposeddropdownmenubox
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownBox(
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCampus by remember { mutableStateOf("Limerick: Mid-West") }
+
+    ExposedDropdownMenuBox (
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
+    ) {
+        TextField(
+            value = selectedCampus,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Select") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        selectedCampus = option
+                        onOptionSelected(option)
+                        expanded = false
+                    }
+                )
+            }
         }
     }
 }

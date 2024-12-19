@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.example.studypath"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.studypath"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = 26
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -41,10 +41,6 @@ android {
         compose = true
     }
 
-//    secrets {
-//        propertiesFileName = "secrets.properties"
-//    }
-
     kapt {
         correctErrorTypes = true
     }
@@ -55,6 +51,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.5.2")
     implementation("androidx.room:room-runtime:2.5.2")
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.media3.database)
     kapt("androidx.room:room-compiler:2.5.2")
     implementation("androidx.navigation:navigation-compose:2.7.2")
     implementation(platform("com.google.firebase:firebase-bom:32.1.1"))

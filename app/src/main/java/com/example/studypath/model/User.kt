@@ -8,7 +8,6 @@ data class User (
     @PrimaryKey(autoGenerate = true)
     val userId: Int,
     val email: String,
-    val password: String, //TODO REMOVE PASSWORD FIELD
     val firstName: String,
     val lastName: String
 

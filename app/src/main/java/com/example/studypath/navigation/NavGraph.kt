@@ -17,6 +17,7 @@ import androidx.work.WorkManager
 import com.example.studypath.database.DatabaseProvider
 import com.example.studypath.model.Task
 import com.example.studypath.screens.AddOrUpdateTaskScreen
+import com.example.studypath.screens.ContactUsPage
 import com.example.studypath.screens.LoginScreen
 import com.example.studypath.screens.NavigationScreen
 import com.example.studypath.screens.RegisterScreen
@@ -123,6 +124,9 @@ fun NavGraph(
                     navController.navigate("login") {
                         popUpTo("task") { inclusive = true }
                     }
+                },
+                onContactUsClick = {
+                    navController.navigate("contactUs")
                 }
             )
         }
@@ -174,16 +178,13 @@ fun NavGraph(
         composable("navigation") {
             NavigationScreen(
                 navController = navController,
-                userEmail = "email",
-                userName = "name",
-                onLogoutClick = {
-                    FirebaseAuth.getInstance().signOut()
-                    navController.navigate("login") {
-                        popUpTo("navigation") { inclusive = true }
-                    }
-                },
                 locationViewModel = locationViewModel
             )
         }
+
+        composable("contactUs") {
+            ContactUsPage(navController = navController)
+        }
+
     }
 }
