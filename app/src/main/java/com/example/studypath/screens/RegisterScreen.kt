@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,7 +58,8 @@ fun RegisterScreen(
 
     Box(
         modifier = Modifier
-            .padding(top = 20.dp)
+            .padding(top = 20
+                .dp)
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
@@ -161,7 +163,6 @@ fun RegisterScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
 
             errorMessage?.let {
@@ -210,7 +211,9 @@ fun RegisterScreen(
                                         email,
                                         password,
                                         onRegisterSuccess,
-                                        onError = { errorMessage = it }
+                                        onError = {
+                                            loading = false
+                                            errorMessage = it },
                                     )
 
                             }
@@ -237,8 +240,7 @@ fun RegisterScreen(
                     OutlinedButton(
                         onClick = { onBackClick() },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .fillMaxWidth(),
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = MaterialTheme.colorScheme.secondary
                         ),

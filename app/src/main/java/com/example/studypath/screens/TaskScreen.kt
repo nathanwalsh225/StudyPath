@@ -203,7 +203,7 @@ fun TaskCard(
                         Spacer(modifier = Modifier.width(24.dp))
 
                         Text(
-                            "Tasks Remaining: ${task.subtasks.size}",
+                            "Sub-Tasks: ${task.subtasks.size}",
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
