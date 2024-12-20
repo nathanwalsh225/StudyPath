@@ -115,14 +115,11 @@ class TaskViewModel(
     private fun scheduleTaskNotification(
         task: Task,
         msgDelay: Long
-    ) { //TODO IMPLEMENT FOR IF AN UPDATE OCCURS
-        Log.d("TAG", "Task scheduled: $msgDelay")
+    ) {
         val inputData = Data.Builder()
             .putString("taskName", task.name)
             .putString("subtasks", task.subtasks.size.toString())
             .build()
-
-        Log.d("TAG", "Task scheduled: $inputData")
 
         val workRequest = OneTimeWorkRequestBuilder<NotificationScheduler>()
             .setInputData(inputData)
@@ -136,7 +133,6 @@ class TaskViewModel(
     //I had initially wanted to create a system where task reminders would be sent based on a few different factors e.g Priority, Due Date, Number of subtasks left
     //But in order to have FCM messages working outside and indepently of the app (in order to schedule notifications), I would need to have a server to send the messages
     //Aswell as some FireStore functions which Im pretty sure costs money
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun getTaskDelayTime(task: Task): Long {
         val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val msgDue = format.parse(task.dueDate)

@@ -1,5 +1,6 @@
 package com.example.studypath.screens
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.util.Log
 import androidx.compose.foundation.clickable
@@ -16,11 +17,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -32,12 +37,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studypath.model.Subtasks
 import com.example.studypath.model.Task
+import com.example.studypath.ui.theme.StudyPathTheme
 import com.example.studypath.viewmodel.TaskViewModel
 import com.example.studypath.viewmodel.UserViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddOrUpdateTaskScreen(
     userViewModel: UserViewModel?,
@@ -71,229 +80,259 @@ fun AddOrUpdateTaskScreen(
     // Set minimum date to today's date
     datePickerDialog.datePicker.minDate = calendar.timeInMillis
 
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    focusManager.clearFocus()
-                })
-            }
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                Text(
-                    text = if (existingTask == null) "Add Task" else "Edit Task",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                )
-            }
-
-            item {
-                TextField(
-                    value = taskName,
-                    onValueChange = { taskName = it },
-                    label = { Text("Task Name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-            }
-            item {
-                Text(
-                    text = "Priority",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                )
-            }
-            item {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    listOf(1 to "Low", 2 to "Medium", 3 to "High").forEach { (value, label) ->
-                        Button(
-                            onClick = { priority = value },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (priority == value)
-                                    MaterialTheme.colorScheme.secondary
-                                else
-                                    MaterialTheme.colorScheme.onSurface
-                            ),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(4.dp)
-                        ) {
-                            Text(label, color = MaterialTheme.colorScheme.onSurface)
-                        }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("StudyPath")
                     }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.secondary),
+            )
+        }
+    ) {  paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = paddingValues.calculateTopPadding(), horizontal = 16.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
                 }
-            }
-
-
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { datePickerDialog.show() } //show the datepicker initiallized above on click
-                        .padding(vertical = 8.dp)
-                ) {
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
                     Text(
-                        text = "Due Date",
-                        style = MaterialTheme.typography.bodyLarge.copy(
+                        text = if (existingTask == null) "Add Task" else "Edit Task",
+                        style = MaterialTheme.typography.headlineMedium.copy(
                             color = MaterialTheme.colorScheme.secondary
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.padding(top = 16.dp)
                     )
+                }
+
+                item {
+                    TextField(
+                        value = taskName,
+                        onValueChange = { taskName = it },
+                        label = { Text("Task Name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 1
+                    )
+                }
+                item {
                     Text(
-                        text = dueDate.ifEmpty { "Select Due Date" },
-                        style = MaterialTheme.typography.bodyMedium.copy(
+                        text = "Priority",
+                        style = MaterialTheme.typography.bodyLarge.copy(
                             color = MaterialTheme.colorScheme.secondary
                         )
                     )
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.padding(16.dp))
-            }
-
-
-            item {
-                Text(
-                    text = "Sub-Tasks:",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                )
-            }
-
-
-                    items(subtasks.size) { index ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            TextField(
-                                value = subtasks[index],
-                                onValueChange = { newValue ->
-                                    subtasks =
-                                        subtasks.toMutableList().apply { set(index, newValue) }
-                                },
-                                label = { Text("Subtask ${index + 1}") },
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(onClick = {
-                                subtasks = subtasks.toMutableList().apply { removeAt(index) }
-                            }) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Delete Subtask"
-                                )
-                            }
-                        }
-                    }
-
-            item {
-                Button(
-                    onClick = { subtasks = subtasks + "" },
-                    //subtasks = subtasks.toMutableList().apply { add("") }
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
-                ) {
-                    Text("Add Sub-Task")
-                }
-            }
-
-            item {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                ) {
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        onClick = {
-                            //Create the task and submit it
-                            if(existingTask == null) { //code for adding task
-                                Log.d("TaskViewModel", "Entered Add")
-                                if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
-                                    val task = Task(
-                                        name = taskName,
-                                        dueDate = dueDate,
-                                        priority = priority,
-                                        userId = userViewModel!!.user.value?.userId ?: 0,
-                                        subtasks = subtasks.map { name ->
-                                            Subtasks(
-                                                name = name,
-                                                completed = false,
-                                                taskId = 0
-                                            )
-                                        }
-                                    )
-
-                                    userViewModel.user.value?.let {
-                                        taskViewModel!!.addTask(
-                                            task,
-                                            it.email
-                                        )
-                                    }
-                                    onTaskAdded()
-                                }
-                            } else { //code for updating task
-                                Log.d("TaskViewModel", "Entered Edit")
-                                if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
-                                    val task = Task(
-                                        taskId = existingTask.taskId,
-                                        name = taskName,
-                                        dueDate = dueDate,
-                                        priority = priority,
-                                        userId = userViewModel!!.user.value?.userId ?: 0,
-                                        subtasks = subtasks.map { name ->
-                                            Subtasks(
-                                                name = name,
-                                                completed = false, //TODO Might set all subtasks to uncomplete if edited, test
-                                                taskId = existingTask.taskId
-                                            )
-                                        }
-                                    )
-
-                                    userViewModel.user.value?.let {
-                                        taskViewModel!!.updateTask(task)
-                                    }
-                                    onTaskAdded()
-                                }
-                            }
-                        }) {
-                        if (existingTask == null) {
-                            Text("ADD TASK")
-                        } else {
-                            Text("UPDATE TASK")
-                        }
-                    }
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        onClick = { onBackClicked() }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("BACK")
+                        listOf(1 to "Low", 2 to "Medium", 3 to "High").forEach { (value, label) ->
+                            Button(
+                                onClick = { priority = value },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (priority == value)
+                                        MaterialTheme.colorScheme.secondary
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
+                                ),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(4.dp)
+                            ) {
+                                Text(label, color = MaterialTheme.colorScheme.onPrimary)
+                            }
+                        }
+                    }
+                }
+
+
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { datePickerDialog.show() } //show the datepicker initiallized above on click
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = "Due Date",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.secondary
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = dueDate.ifEmpty { "Select Due Date" },
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.padding(16.dp))
+                }
+
+
+                item {
+                    Text(
+                        text = "Sub-Tasks:",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    )
+                }
+
+                items(subtasks.size) { index ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextField(
+                            value = subtasks[index],
+                            onValueChange = { newValue ->
+                                subtasks =
+                                    subtasks.toMutableList().apply { set(index, newValue) }
+                            },
+                            label = { Text("Subtask ${index + 1}") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = {
+                            subtasks = subtasks.toMutableList().apply { removeAt(index) }
+                        }) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Delete Subtask",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = { subtasks = subtasks + "" },
+                        //subtasks = subtasks.toMutableList().apply { add("") }
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Add Sub-Task")
+                    }
+                }
+
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            onClick = {
+                                //Create the task and submit it
+                                if (existingTask == null) { //code for adding task
+                                    Log.d("TaskViewModel", "Entered Add")
+                                    if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
+                                        val task = Task(
+                                            name = taskName,
+                                            dueDate = dueDate,
+                                            priority = priority,
+                                            userId = userViewModel!!.user.value?.userId ?: 0,
+                                            subtasks = subtasks.map { name ->
+                                                Subtasks(
+                                                    name = name,
+                                                    completed = false,
+                                                    taskId = 0
+                                                )
+                                            }
+                                        )
+
+                                        userViewModel.user.value?.let {
+                                            taskViewModel!!.addTask(
+                                                task,
+                                                it.email
+                                            )
+                                        }
+                                        onTaskAdded()
+                                    }
+                                } else { //code for updating task
+                                    Log.d("TaskViewModel", "Entered Edit")
+                                    if (taskName.isNotEmpty() && dueDate.isNotEmpty()) {
+                                        val task = Task(
+                                            taskId = existingTask.taskId,
+                                            name = taskName,
+                                            dueDate = dueDate,
+                                            priority = priority,
+                                            userId = userViewModel!!.user.value?.userId ?: 0,
+                                            subtasks = subtasks.map { name ->
+                                                Subtasks(
+                                                    name = name,
+                                                    completed = false,
+                                                    taskId = existingTask.taskId
+                                                )
+                                            }
+                                        )
+
+                                        userViewModel.user.value?.let {
+                                            taskViewModel!!.updateTask(task)
+                                        }
+                                        onTaskAdded()
+                                    }
+                                }
+                            }) {
+                            if (existingTask == null) {
+                                Text("ADD TASK")
+                            } else {
+                                Text("UPDATE TASK")
+                            }
+                        }
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            onClick = { onBackClicked() }
+                        ) {
+                            Text("BACK")
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun AddOrUpdateTaskScreenPreview() {
+    StudyPathTheme(dynamicColor = false) {
+    AddOrUpdateTaskScreen(
+        userViewModel = null,
+        taskViewModel = null,
+        onTaskAdded = {},
+        onBackClicked = {}
+    )
     }
 }

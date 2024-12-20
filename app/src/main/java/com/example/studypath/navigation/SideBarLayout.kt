@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.studypath.ui.theme.StudyPathTheme
 import kotlinx.coroutines.launch
 
@@ -44,9 +45,10 @@ import kotlinx.coroutines.launch
 fun MainScreenWithSidebar(
     userEmail: String,
     userName: String,
+    navController: NavController,
     onLogoutClick: () -> Unit,
     onContactUsClick: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope() //Using a coroutine Scope for side menu
@@ -93,9 +95,13 @@ fun MainScreenWithSidebar(
                         Spacer(Modifier.size(48.dp)) //centered the title
                     }
                 )
+            },
+
+            bottomBar = { BottomAppBar(navController, "task") }
+        ) {paddingValues ->
+            Column(modifier = Modifier.padding(paddingValues)) { //Padding values are the values from the scaffold
+                content()
             }
-        ) {
-            content() //What ever screen gets passed into here
         }
     }
 }
@@ -122,16 +128,9 @@ fun SidebarContent(
             )
             .padding(16.dp)
     ) {
-        Text(
-            text = "Menu",
-            style = MaterialTheme.typography.titleLarge.copy( //.copy gets that paticular style but allows me to still edit certain bits eg. color
-                color = MaterialTheme.colorScheme.background,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
+
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(50.dp))
 
         Text(
             text = "Account Details",
@@ -170,16 +169,18 @@ fun SidebarContent(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.error,
+                    color = MaterialTheme.colorScheme.secondary,
                     shape = MaterialTheme.shapes.medium
                 ),
             colors = ButtonDefaults.buttonColors(
-                contentColor = MaterialTheme.colorScheme.error,
-                containerColor = MaterialTheme.colorScheme.onError
+                contentColor = MaterialTheme.colorScheme.secondary,
+                containerColor = MaterialTheme.colorScheme.background
             )
         ) {
             Text( text = "Contact Us")
         }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
         Button (
             onClick = {
@@ -203,17 +204,3 @@ fun SidebarContent(
 }
 }
 
-@Preview
-@Composable
-fun SideBarPreview() {
-    StudyPathTheme(dynamicColor = false) {
-
-        MainScreenWithSidebar(
-            userEmail = "nathanwalsh225@gmail.com",
-            userName = "Nathan Walsh",
-            onLogoutClick = {},
-            content = {},
-            onContactUsClick = {}
-        )
-    }
-}

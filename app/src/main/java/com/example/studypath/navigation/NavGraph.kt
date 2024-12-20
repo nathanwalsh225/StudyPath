@@ -52,8 +52,6 @@ fun NavGraph(
         )
     }
 
-
-    //TODO Optimize this as I can see it getting messy
     NavHost(
         navController = navController,
         startDestination = "login",
@@ -183,7 +181,10 @@ fun NavGraph(
         }
 
         composable("contactUs") {
-            ContactUsPage(navController = navController)
+            ContactUsPage(
+                navController = navController,
+                onBackClicked = { navController.popBackStack() }
+            )
         }
 
     }

@@ -57,6 +57,7 @@ fun RegisterScreen(
 
     Box(
         modifier = Modifier
+            .padding(top = 20.dp)
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {

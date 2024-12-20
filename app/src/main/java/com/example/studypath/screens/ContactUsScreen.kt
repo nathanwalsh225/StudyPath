@@ -34,11 +34,14 @@ import androidx.navigation.NavController
 
 //I know this screen is very empty but I dont know how else to fill it but the brief states I need a contact page so I just made one
 //What I would have done is made the contact us button on the sidebar just open the dialer with the number or the email
+//https://www.geeksforgeeks.org/android-open-dialer-through-intent-using-jetpack-compose/
+//Where I got the dialar code
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContactUsPage(
-    navController: NavController
+    navController: NavController,
+    onBackClicked: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -56,7 +59,6 @@ fun ContactUsPage(
             )
         }
     ) { paddingValues ->
-
 
 
         Box(
@@ -126,15 +128,18 @@ fun ContactUsPage(
 
                     Text("Send an Email")
                 }
+
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                ),
+                onClick = { onBackClicked() }
+            ) {
+                Text("BACK")
+            }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun ContactUsPagePreview() {
-    ContactUsPage(navController = NavController(LocalContext.current))
 }
 
 

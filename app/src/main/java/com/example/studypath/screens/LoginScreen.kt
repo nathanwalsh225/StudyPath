@@ -185,27 +185,7 @@ fun LoginScreen(
                     ) {
                         Text("REGISTER")
                     }
-
-                    Button(
-                        onClick = {
-                            email = "n1@email.com"
-                            password = "Password1:"
-                            authViewModel.login(email, password,
-                                onSuccess = onLoginSuccess,
-                                onError = { errorMessage = it }
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSecondary
-                        )
-                    ) {
-                        Text("INSTANT LOGIN")
-                    }
-
                 }
-
             }
         }
     }
